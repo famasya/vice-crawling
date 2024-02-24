@@ -197,7 +197,7 @@ fragment ShowFragment on Show {
 
 async function fetchLatestFeed() {
   let hasMore = true;
-  let page = 1;
+  let page = 34;
 
   while (hasMore) {
     const variables = {
@@ -206,6 +206,7 @@ async function fetchLatestFeed() {
       page: page,
       perPage: 10,
       site: "vice",
+      type: "articles"
     };
 
     try {
@@ -227,6 +228,7 @@ async function fetchLatestFeed() {
       }
       const records = items.map((item: any) => {
         const data = item.data;
+        console.log(data.body_components_json)
         const body = JSON.parse(data.body_components_json).filter((c: any) => c.role === "body");
         const contentHtml = body.map((component: any) => component.html);
         const contentMd = body.map((component: any) => component.text);
