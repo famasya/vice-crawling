@@ -222,7 +222,6 @@ async function fetchLatestFeed() {
       });
 
       const items = response.data.data.latest;
-      console.log(items.length, 82828)
       if (items.length === 0) {
         hasMore = false;
       }
