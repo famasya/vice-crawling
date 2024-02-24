@@ -9,11 +9,14 @@ const csvWriter = createObjectCsvWriter({
     { id: "title", title: "Title" },
     { id: "publish_date", title: "Publish Date" },
     { id: "url", title: "URL" },
+    { id: "content_html", title: "Content (HTML)" },
+    { id: "content_md", title: "Content (MD)" },
     { id: "topic", title: "Topic" },
     { id: "summary", title: "Summary" },
     { id: "contributors", title: "Contributors" },
   ],
   append: true,
+  alwaysQuote: true,
 });
 
 const query = `
@@ -81,6 +84,7 @@ fragment ArticleFragment on Article {
     }
     dek
     id
+    body_components_json
     locale
     publish_date
     section {
@@ -218,20 +222,26 @@ async function fetchLatestFeed() {
       });
 
       const items = response.data.data.latest;
+      console.log(items.length, 82828)
       if (items.length === 0) {
         hasMore = false;
       }
-      const records = items.map((item) => {
+      const records = items.map((item: any) => {
         const data = item.data;
+        const body = JSON.parse(data.body_components_json).filter((c: any) => c.role === "body");
+        const contentHtml = body.map((component: any) => component.html);
+        const contentMd = body.map((component: any) => component.text);
         return {
           id: item.id,
           type: item.type,
           title: data.title,
           publish_date: data.publish_date,
           url: data.url,
-          topic: data.primary_topic.name,
+          topic: data?.primary_topic?.name ?? "",
+          content_html: contentHtml,
+          content_md: contentMd,
           summary: data.dek,
-          contributors: JSON.stringify(data.contributions),
+          contributors: JSON.stringify(data?.contributions ?? {}),
         };
       });
 
